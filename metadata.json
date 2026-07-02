@@ -1,0 +1,6 @@
+{
+  "name": "Qualcomm FM Radio Ultimate",
+  "description": "Production engineering diagnostic & activation engine for internal Qualcomm Snapdragon FM Radio hardware, HAL, JNI, Binder services, and Audio Routing on Samsung Galaxy devices.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

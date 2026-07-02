@@ -1,0 +1,66 @@
+project:
+  name: "Qualcomm FM Radio Activation Engine Ultimate"
+  application_id: "com.aistudio.qcomfmradio.ultimate"
+  version: "1.0.0-PROD"
+  description: "Production-grade framework engineering diagnostic and activation engine for Qualcomm Snapdragon FM Radio hardware on Samsung Galaxy devices."
+
+target_hardware:
+  device_name: "Samsung Galaxy Tab A9+ 5G"
+  model_code: "SM-X216B"
+  android_version: 16
+  soc_model: "Qualcomm Snapdragon 695 (Blair / SM6375)"
+  architecture: "ARM64"
+  rf_chipset: "Qualcomm WCN3998 / FastConnect 6200 RF Block"
+
+architecture_layers:
+  kernel_interfaces:
+    character_devices:
+      - path: "/dev/radio0"
+        description: "V4L2 Radio Tuner Character Device Node"
+        access_role: "Requires system/root privilege in SELinux enforcing domain"
+      - path: "/dev/smd7"
+        description: "Shared Memory Driver (SMD) Command Channel"
+      - path: "/dev/smdcntl0"
+        description: "Qualcomm SMD Control IPC Channel"
+
+  vendor_hals:
+    broadcastradio_aidl:
+      interface: "android.hardware.broadcastradio@2.0::IBroadcastRadio"
+      type: "AIDL / HIDL"
+      role: "Standard Android framework BroadcastRadio tuner manager"
+    qualcomm_fm_hidl:
+      interface: "vendor.qti.hardware.fm@1.0::IFmHci"
+      shared_library: "/vendor/lib64/hw/vendor.qti.hardware.fm@1.0-impl.so"
+      role: "Direct HCI command bridge to WCN399x baseband"
+
+  jni_native_bridges:
+    libraries:
+      - name: "libfmjni.so"
+        path: "/system/lib64/libfmjni.so"
+      - name: "libqcomfm_jni.so"
+        path: "/vendor/lib64/libqcomfm_jni.so"
+    exported_symbols:
+      - "acquireFdNative"
+      - "tuneNative"
+      - "seekNative"
+      - "enableRdsNative"
+      - "readRdsNative"
+      - "setControlNative"
+
+  audio_routing:
+    mixer_profiles:
+      - "/vendor/etc/mixer_paths_blair.xml"
+      - "/vendor/etc/mixer_paths.xml"
+    mandates:
+      antenna_requirement: "Analog wired headset cable (3.5mm or USB-C DAC ground wire) acting as 75cm quarter-wave RF dipole antenna."
+      pcm_route: "sec_fm hardware mixer route sending raw I2S audio stream directly to internal stereo speakers or headset amp."
+
+diagnostic_pipeline:
+  step_1_detection: "Probe runtime presence of FM chipset, HALs, Binder daemons, kernel nodes, and audio routes."
+  step_2_jni_test: "Attempt safe dynamic loading of native JNI bridges under Android 16 namespace isolation."
+  step_3_binder: "Ping ServiceManager for broadcastradio and vendor.qti.hardware.fm reachability and transaction support."
+  step_4_hal: "Verify registration status of AIDL/HIDL BroadcastRadio services."
+  step_5_audio: "Interrogate AudioManager and sec_fm mixer profiles for antenna loop closure."
+  step_6_decision: "Synthesize exact engineering root cause (Fully Operational vs Permission/HAL/Kernel blocked)."
+  step_7_player: "Material 3 FM Synthesizer with RDS decoding and Engineering Sandbox Simulation."
+  step_8_report: "Copyable telemetry markdown report with full layer diagnostics."

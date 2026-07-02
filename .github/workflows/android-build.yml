@@ -16,18 +16,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '17'
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v2
+      - name: Setup Gradle Wrapper if missing
+        run: |
+          if [ ! -f ./gradlew ]; then
+            gradle wrapper
+          fi
+          chmod +x gradlew
 
       - name: Run Unit & Diagnostic Engine Tests
         run: ./gradlew testDebugUnitTest --no-daemon

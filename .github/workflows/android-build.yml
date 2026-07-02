@@ -30,6 +30,13 @@ jobs:
           fi
           chmod +x gradlew
 
+      - name: Generate Android Default Debug Keystore
+        run: |
+          mkdir -p ~/.android
+          keytool -genkey -v -keystore ~/.android/debug.keystore -keyalg RSA -keysize 2048 -validity 10000 \
+            -alias androiddebugkey -keypass android -storepass android \
+            -dname "CN=Android Debug,O=Android,C=US"
+
       - name: Run Unit & Diagnostic Engine Tests
         run: ./gradlew testDebugUnitTest --no-daemon
 
